@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# 02/2017 @MikeMakes
+# GPU 3.0
+# This has not warranties at all
+
+# Setup an wireless Ad-Hoc network in a rpi or regular pc
+# Used with adhoff.sh is a easy way for tongle the Ad-Hoc
+# If Ad-Hoc is alredy active this script will restart interfaces and setup it again
+
+
+#############################	Useful things and error handling	##############
+
+#DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # Directory where this script is (Commentable in case it is not neccesary)
+
+PROGNAME=$(basename $0) # A slicker error handling routine by William Shotts (www.linuxcommand.org)
+error_exit() {
+	echo "${PROGNAME}: ${1:-"Unknown Error"}" 1>&2
+	exit 1
+}
+	
+#############################	The script starts here	##############################
+
+PI=false #Check if this is running in a rpi
+grep 'BCM2708' /proc/cpuinfo && PI=true	# BCM27XX is the name of rpi's processor, if grep is succesful we are in a rpi
+grep 'BCM2709' /proc/cpuinfo && PI=true # You could use this to identify differents rpis with caution, same versions of rpi share the same family chip
+grep 'BCM2710' /proc/cpuinfo && PI=true # https://raspberrypi.stackexchange.com/questions/840/why-is-the-cpu-sometimes-referred-to-as-bcm2708-sometimes-bcm2835
+
+# We need to change things on /etc/network/interfaces so lets backup it
+if [ -e /etc/network/interfaces.backup ]; then	# Ooops if there is alredy a backup we should be alredy in Ad-Hoc mode
+	echo "Backup alredy exist. Ad-Hoc probably on, trying to turn it off and then continuing" # Just in case, we turn it off and try again (so we can 'restart' the network easily)
+	.$DIR/ahoff.sh
+else
+	echo "Backup /etc/network/interfaces as interfaces.backup" # Make backup
+	sudo cp /etc/network/interfaces /etc/network/interfaces.backup || error_exit "$LINENO: Error creating backup"
+fi
+
+echo " Setting /etc/network/interfaces properly" # Change interfaces for interfaces.adhoc
+if [ "$PI" = true ]; then 
+	sudo cp $DIR/interfaces.adhocPI /etc/network/interfaces || error_exit "$LINENO: Error copying  .adhocPI to /etc/network"
+else
+	sudo stop network-manager		# If we are in a pc that uses GNOME or KDE (I wrote this comment 2 years ago so Im not sure what gnome or kde has to do with network-manager but ok)
+	sudo cp $DIR/interfaces.adhocNOTPI /etc/network/interfaces || error_exit "$LINENO: Error copying  .adhocNOTPI to /etc/network"
+fi
+
+sudo ifdown wlan0 && sudo ifup wlan0 # Restarting wireless interface to apply changes
+sudo ifdown wlan0 && sudo ifup wlan0 # Twice for actually get it working(idk why I need to do this in my rpi)
+echo "Restarting inteface wlan0. This gonna take me 20s" # Waiting for the interface establishment
+sleep 20
+if [ "$PI" = false ]; then sudo start network-manager; fi # In case we are not in a rpi, restart network-manager 
+sudo iwlist wlan0 scan # Scan networks with interface wlan0 (Somes drivers need this to trigger IBSS)
+
+sudo iwconfig # Show actual interfaces settings
+echo "Ad-Hoc ready" && exit 0
+
