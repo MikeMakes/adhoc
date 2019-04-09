@@ -1,4 +1,4 @@
-# RPi Ad-Hoc
+# Ad-Hoc
 These scripts come in handy for creating an Ad-Hoc network over WiFi with any ubuntu pc or raspberry pi (there are also instructions for Windows 7, I suppose other win versions should be similar.
 
 An Ad-Hoc network is decentralised and does not rely on a pre-existing infrastructure.
