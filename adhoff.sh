@@ -30,11 +30,11 @@ if [ "$PI" = false ]; then sudo stop network-manager; fi #In case we are inside 
 #Restore interface config and removing backup
 sudo cp /etc/network/interfaces.backup /etc/network/interfaces || error_exit "$LINENO: I couldn't restore the backup. Take care..."
 sudo rm /etc/network/interfaces.backup || error_exit "$LINENO: I couldn't delete the backup. It's still out there..."
-sudo iwconfig wlan0 mode Managed
+sudo iwconfig wlp2s0 mode Managed
 
-sudo ifdown wlan0 #Turning off...
-sudo ifup wlan0 # ...and on the wireless interface
+sudo ifdown wlp2s0 #Turning off...
+sudo ifup wlp2s0 # ...and on the wireless interface
 if [ "$PI" = false ]; then sudo start network-manager; fi #In case we are inside a regular pc, restart network-manager
-sudo iwlist wlan0 scan # Scan the networks available (this is needed with some networks adapters)
+sudo iwlist wlp2s0 scan # Scan the networks available (this is needed with some networks adapters)
 sudo iwconfig # Show actual interfaces settings
 echo "All settings restored" && exit 0

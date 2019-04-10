@@ -26,6 +26,11 @@ grep 'BCM2708' /proc/cpuinfo && PI=true	# BCM27XX is the name of rpi's processor
 grep 'BCM2709' /proc/cpuinfo && PI=true # You could use this to identify differents rpis with caution, same versions of rpi share the same family chip
 grep 'BCM2710' /proc/cpuinfo && PI=true # https://raspberrypi.stackexchange.com/questions/840/why-is-the-cpu-sometimes-referred-to-as-bcm2708-sometimes-bcm2835
 
+# Wireless interface to configure. Check your wireless interface with iwconfig
+#IFACE="wlan0" # this is the one for my rpi
+IFACE="wlp2s0" # this is my laptop
+#IFACE="wlp7s0" # this is marcos laptop
+
 # We need to change things on /etc/network/interfaces so lets backup it
 if [ -e /etc/network/interfaces.backup ]; then	# Ooops if there is alredy a backup we should be alredy in Ad-Hoc mode
 	echo "Backup alredy exist. Ad-Hoc probably on, trying to turn it off and then continuing" # Just in case, we turn it off and try again (so we can 'restart' the network easily)
@@ -35,6 +40,8 @@ else
 	sudo cp /etc/network/interfaces /etc/network/interfaces.backup || error_exit "$LINENO: Error creating backup"
 fi
 
+sudo ifdown $IFACE # Turn off interfaces
+
 echo " Setting /etc/network/interfaces properly" # Change interfaces for interfaces.adhoc
 if [ "$PI" = true ]; then 
 	sudo cp $DIR/interfaces.adhocPI /etc/network/interfaces || error_exit "$LINENO: Error copying  .adhocPI to /etc/network"
@@ -43,13 +50,13 @@ else
 	sudo cp $DIR/interfaces.adhocNOTPI /etc/network/interfaces || error_exit "$LINENO: Error copying  .adhocNOTPI to /etc/network"
 fi
 
-sudo ifdown wlan0 && sudo ifup wlan0 # Restarting wireless interface to apply changes
-sudo ifdown wlan0 && sudo ifup wlan0 # Twice for actually get it working(idk why I need to do this in my rpi)
-echo "Restarting inteface wlan0. This gonna take me 20s" # Waiting for the interface establishment
+sudo ifdown $IFACE && sudo ifup $IFACE # Restarting wireless interface to apply changes
+sudo ifdown $IFACE && sudo ifup $IFACE # Twice for actually get it working(idk why I need to do this in my rpi)
+echo "Restarting inteface $IFACE. This gonna take me 20s" # Waiting for the interface establishment
 sleep 20
 if [ "$PI" = false ]; then sudo start network-manager; fi # In case we are not in a rpi, restart network-manager 
-sudo iwlist wlan0 scan # Scan networks with interface wlan0 (Somes drivers need this to trigger IBSS)
+sudo iwlist $IFACE scan # Scan networks with interface $IFACE (Somes drivers need this to trigger IBSS)
 
-sudo iwconfig # Show actual interfaces settings
+sudo IFACEconfig # Show actual interfaces settings
 echo "Ad-Hoc ready" && exit 0
 
