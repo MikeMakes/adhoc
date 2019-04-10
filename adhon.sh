@@ -11,7 +11,7 @@
 
 #############################	Useful things and error handling	##############
 
-#DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # Directory where this script is (Commentable in case it is not neccesary)
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # Directory where this script is (Commentable in case it is not neccesary)
 
 PROGNAME=$(basename $0) # A slicker error handling routine by William Shotts (www.linuxcommand.org)
 error_exit() {
