@@ -30,4 +30,5 @@ There are two scripts; [Adhon.sh](adhon.sh) (setup adhoc) & [Adhoff.sh](adhoff.s
 This simply backups your currents settings (copying /etc/network/interfaces file as /etc/network/interfaces.backup), overwrites them with the Ad-Hoc configuration (copying interface.adhocX as /etc/network/interfaces), and restarts interfaces (because this file apply to the ifup & ifdown commands).   
 If the script believes that Ad-Hoc is alredy activated (= if you run adhon.sh with a file called /etc/network/interfaces.backup) it will turn it off with adhoff.sh (restoring previous configuration) and then will continue to bring Ad-Hoc up.
 
-* [Adhoff.sh](adhoff.sh) does the inverse job of adhon.sh; restore previous configuration (copying /etc/network/interfaces.backup file as /etc/network/interfaces) and restarting interfaces.
+* [Adhoff.sh](adhoff.sh)  
+It does the inverse job of adhon.sh; restore previous configuration (copying /etc/network/interfaces.backup file as /etc/network/interfaces) and restarting interfaces.
