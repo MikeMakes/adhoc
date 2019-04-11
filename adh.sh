@@ -5,6 +5,8 @@
 # This has not warranties at all
 
 # What does this do?
+# Usage:
+# adh [on/off] [$iface_name]
 
 
 #############################	Useful things and error handling	##############
@@ -19,6 +21,10 @@ error_exit() {
 	
 #############################	The script starts here	##############################
 
+WD=/etc/network
+IFS=/etc/network/interfaces
+ADH_IFS=/etc/network/interfaces.d/adhoc_ifaces
+
 if [ -e /etc/network/interfaces.bck ]; then	# Ooops if there is alredy a backup we should be alredy in Ad-Hoc mode
 	echo "Backup alredy exist. Ad-Hoc probably on, trying to turn it off and then continuing" # Just in case, we turn it off and try again (so we can 'restart' the network easily)
 	.$DIR/ahoff.sh
@@ -27,13 +33,33 @@ else
 	cp /etc/network/interfaces /etc/network/interfaces.d/interfaces.bck || error_exit "$LINENO: Error creating backup"
 fi
 
+if [ ! -e $ADH_IFS ]; then # If there isnt this file (first time running),
+	touch $ADH_IFS  && echo "allow-adhoc" >> $ADH_IFS # lets create it
+fi
+
+TURN=$1
+IFACE_NAME=$2
 
 # >adh on $iface_name
-# 	si no -e /etc/network/interfaces.d/adhoc_ifaces
+if [ $TURN = "on" ]; then 
+	grep "$IFACE_NAME" /etc/network/interfaces.d/adhoc_ifaces && IFACE_EXISTS=true	# if we find $iface_name in adhoc_ifaces, this iface was alredy setup
+	if [ ! $IFACE_EXISTS ]; then # If it is not there, it will:
+		echo "Creating Ad-Hoc interface $IFACE_NAME in $ADH_IFS"
+		echo "Please enter ssid:"
+		read SSID
+		echo "Please enter channel:"
+		read CHANNEL
+		echo "Please enter frequency:"
+		read FREQ
+		echo "Please enter password:"
+		read PASS
+		# Write all this down
+fi
+	sudo ifdown ** && sudo ifup --allow=adhoc $IFACE_NAME
+fi
 # 		configurar /etc/network/interfaces.d/adhoc_ifaces; ssid, channel, pass, freq... con allow-adhoc $iface_name
 # 		Escribir en interfaces "source /etc/network/interfaces.d/adhoc_ifaces"
-#	else
-#		grep -allow-adhoc xxx xxx xxx y si no esta ahi $iface_name: configurar nueva iface $iface_name: ssid, channel, pass, freq... en /etc/network/interfaces.d/adhoc_ifaces
+
 # 	Desactivar dhcpl, ifdown ifup --allow=adhoc $iface_name	
 
 
