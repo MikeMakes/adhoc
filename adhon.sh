@@ -57,6 +57,6 @@ sleep 20
 if [ "$PI" = false ]; then sudo start network-manager; fi # In case we are not in a rpi, restart network-manager 
 sudo iwlist $IFACE scan # Scan networks with interface $IFACE (Somes drivers need this to trigger IBSS)
 
-sudo IFACEconfig # Show actual interfaces settings
+sudo iwconfig # Show actual interfaces settings
 echo "Ad-Hoc ready" && exit 0
 
