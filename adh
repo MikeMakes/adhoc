@@ -8,26 +8,53 @@
 # Usage:
 # adh [on/off] [interface name] [essid] [key] [channel] [ip]
 
-if [ "$1" = "on" ]; then
-	IF=$2 && ESSID=$3 && KEY=$4 && CHAN=$5 && IP=$6
+# From https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
+POSITIONAL=()
+while [[ $# -gt 0 ]]
+do
+	key="$1"
+	case $key in
+	    --on)
+		if [ -n "$2" ]; then IF=$2; else IF="$DEF_IF"; fi
+		if [ -n "$3" ]; then ESSID=$3; else IF="$DEF_ESSID"; fi
+		if [ -n "$4" ]; then KEY=$4; else IF="$DEF_KEY"; fi
+		if [ -n "$5" ]; then CHAN=$5; else IF="$DEF_CHAN"; fi
+		if [ -n "$6" ]; then IP=$6; fi # else IF="$DEF_IP"; fi
+		echo "if"; echo $IF; echo "essid"; echo $ESSID; echo "key"; echo $KEY; echo "chan"; echo $CHAN; echo "ip"; echo $IP
 		
-	sudo service network-manager stop
-	sudo ip link set $IF down 
+		sudo service network-manager stop
+		sudo ip link set $IF down 
 	
-	sudo iwconfig $IF mode ad-hoc
-	sudo iwconfig $IF channel $CHAN
-	sudo iwconfig $IF essid $ESSID
-	sudo iwconfig $IF key $KEY
-	sudo ip link set $IF up
+		sudo iwconfig $IF mode ad-hoc
+		sudo iwconfig $IF essid $ESSID
+		sudo iwconfig $IF key $KEY
+		sudo iwconfig $IF channel $CHAN
+		
+		sudo ip link set $IF up
 
-	if [ ! -e $IP ]; then
-		sudo dhclient $IF
-	else	
-		sudo ip addr add $IP dev $IF # 169.254.34.2/16
-	fi
-elif [ "$1" = "off" ]; then
-	sudo service network-manager start
-	iwconfig
-	echo "It may take a moment to restore your interface..."
-	iwconfig | grep Ad-Hoc && echo "Not yet..."
-fi
+		if [ ! -z $IP ]; then
+			sudo dhclient $IF
+		else	
+			sudo ip addr add $IP dev $IF # 169.254.34.2/16
+		fi
+
+		shift # past argument
+		shift # past value
+	    ;;
+	    --off)
+		sudo service network-manager start
+		iwconfig
+
+		echo "It may take a moment to restore your interface..."
+		iwconfig | grep Ad-Hoc && echo "Not yet..."
+
+		shift # past argument
+		shift # past value
+	    ;;
+	    *)    # unknown option
+		POSITIONAL+=("$1") # save it in an array for later
+		shift # past argument
+	    ;;
+	esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
