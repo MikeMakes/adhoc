@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# 02/2017 @MikeMakes
+# GPU 3.0
+# This has not warranties at all
+
+# What does this do?
+# Usage:
+# adh [on/off] [interface name] [essid] [key] [channel] [ip]
+
+if [ "$1" = "on" ]; then
+	IF=$2 && ESSID=$3 && KEY=$4 && CHAN=$5 && IP=$6
+		
+	sudo service network-manager stop
+	sudo ip link set $IF down 
+	
+	sudo iwconfig $IF mode ad-hoc
+	sudo iwconfig $IF channel $CHAN
+	sudo iwconfig $IF essid $ESSID
+	sudo iwconfig $IF key $KEY
+	sudo ip link set $IF up
+
+	if [ ! -e $IP ]; then
+		sudo dhclient $IF
+	else	
+		sudo ip addr add $IP dev $IF # 169.254.34.2/16
+	fi
+elif [ "$1" = "off" ]; then
+	sudo service network-manager start
+	iwconfig
+	echo "It may take a moment to restore your interface..."
+	iwconfig | grep Ad-Hoc && echo "Not yet..."
+fi

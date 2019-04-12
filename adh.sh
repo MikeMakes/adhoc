@@ -42,7 +42,7 @@ IFACE_NAME=$2
 
 # >adh on $iface_name
 if [ $TURN = "on" ]; then 
-	grep "$IFACE_NAME" /etc/network/interfaces.d/adhoc_ifaces && IFACE_EXISTS=true	# if we find $iface_name in adhoc_ifaces, this iface was alredy setup
+	grep "$IFACE_NAME" $ADH_IFS && IFACE_EXISTS=true	# if we find $iface_name in adhoc_ifaces, this iface was alredy setup
 	if [ ! $IFACE_EXISTS ]; then # If it is not there, it will:
 		echo "Creating Ad-Hoc interface $IFACE_NAME in $ADH_IFS"
 		echo "Please enter ssid:"
@@ -53,17 +53,14 @@ if [ $TURN = "on" ]; then
 		read FREQ
 		echo "Please enter password:"
 		read PASS
-		# Write all this down
+		# Write all this down in $ADH_IFS
 fi
+	sudo systemctl stop dhcpcd.service # Stop dhcpl bc it could interfere with interfaces
 	sudo ifdown ** && sudo ifup --allow=adhoc $IFACE_NAME
 fi
-# 		configurar /etc/network/interfaces.d/adhoc_ifaces; ssid, channel, pass, freq... con allow-adhoc $iface_name
-# 		Escribir en interfaces "source /etc/network/interfaces.d/adhoc_ifaces"
 
-# 	Desactivar dhcpl, ifdown ifup --allow=adhoc $iface_name	
-
-
-# >adh off $iface_name 
-# 	ifdown allow-adhoc $iface_name 
-#	ifup -a
-#	dhcpl
+# >adh off $iface_name
+if [ $TURN = "off" ]; then
+	sudo ifdown --allow=adhoc $iface_name && sudo ifup -a
+	sudo systemctl start dhcpcd.service
+fi
