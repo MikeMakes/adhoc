@@ -8,12 +8,18 @@
 # Usage:
 # adh [on/off] [interface name] [essid] [key] [channel] [acces point] [ip]
 
-DEF_IF=wlp2s0
+DEF_IF=wlp2s0 # Change it with your interface. Run iwconfig if u dont know how its called
+grep 'BCM2708' /proc/cpuinfo && DEF_IF=wlan0	# RPi interface
+grep 'BCM2709' /proc/cpuinfo && DEF_IF=wlan0
+grep 'BCM2710' /proc/cpuinfo && DEF_IF=wlan0
 DEF_ESSID=adhoc
 DEF_KEY=1234567890
 DEF_CHAN=6
 DEF_AP=E2:84:04:26:21:36
-DEF_IP=2001:db8:85a3::8a2e:370:7334
+DEF_IP=2001:db8:85a3::8a2e:370:7334	# PC ip
+grep 'BCM2708' /proc/cpuinfo && DEF_IP=2001:db8:85a3::8a2e:370:7333	# RPi ip
+grep 'BCM2709' /proc/cpuinfo && DEF_IP=2001:db8:85a3::8a2e:370:7333
+grep 'BCM2710' /proc/cpuinfo && DEF_IP=2001:db8:85a3::8a2e:370:7333
 
 # From https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
 POSITIONAL=()
@@ -43,16 +49,16 @@ do
 		sudo iwconfig $IF key $KEY
 		echo ">sudo iwconfig $IF channel $CHAN" ##
 		sudo iwconfig $IF channel $CHAN
-		#echo ">sudo iwconfig $IF ap $AP" ##
-		#sudo iwconfig $IF ap $AP
+		echo ">sudo iwconfig $IF ap $AP" ##
+		sudo iwconfig $IF ap $AP
 
-		#if [ -z "$IP" ]; then
-		#	echo "sudo dhclient $IF" ##
-		#	sudo dhclient $IF
-		#else	
-		#	echo "sudo ip addr add $IP dev $IF"			
-		#	sudo ip addr add $IP dev $IF # 169.254.34.2/16
-		#fi
+		if [ -z "$IP" ]; then
+			echo "sudo dhclient $IF" ##
+			sudo dhclient $IF
+		else	
+			echo "sudo ip addr add $IP dev $IF"			
+			sudo ip addr add $IP dev $IF # 169.254.34.2/16
+		fi
 
 
 		echo "sudo ip link set $IF up" ##
