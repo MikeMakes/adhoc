@@ -23,9 +23,9 @@ do
 	case $key in
 	    --on)
 		if [ -n "$2" ]; then IF=$2; else IF="$DEF_IF"; fi
-		if [ -n "$3" ]; then ESSID=$3; else IF="$DEF_ESSID"; fi
-		if [ -n "$4" ]; then KEY=$4; else IF="$DEF_KEY"; fi
-		if [ -n "$5" ]; then CHAN=$5; else IF="$DEF_CHAN"; fi
+		if [ -n "$3" ]; then ESSID=$3; else ESSID="$DEF_ESSID"; fi
+		if [ -n "$4" ]; then KEY=$4; else KEY="$DEF_KEY"; fi
+		if [ -n "$5" ]; then CHAN=$5; else CHAN="$DEF_CHAN"; fi
 		if [ -n "$6" ]; then AP=$6; else AP="$DEF_AP"; fi
 		if [ -n "$7" ]; then IP=$7; else IP="$DEF_IP"; fi # Comment the else part if u want dhcpl when no ip addres is passed. It gives problem tho, bc network-manageer will interfere with the iface
 		echo "if"; echo $IF; echo "essid"; echo $ESSID; echo "key"; echo $KEY; echo "chan"; echo $CHAN; echo "acces point"; echo $AP; echo "ip"; echo $IP
