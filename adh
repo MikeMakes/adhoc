@@ -6,7 +6,14 @@
 
 # What does this do?
 # Usage:
-# adh [on/off] [interface name] [essid] [key] [channel] [ip]
+# adh [on/off] [interface name] [essid] [key] [channel] [acces point] [ip]
+
+DEF_IF=wlp2s0
+DEF_ESSID=adhoc
+DEF_KEY=1234567890
+DEF_CHAN=6
+DEF_AP=adhoc
+DEF_IP=2001:db8:85a3::8a2e:370:7334
 
 # From https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
 POSITIONAL=()
@@ -19,7 +26,8 @@ do
 		if [ -n "$3" ]; then ESSID=$3; else IF="$DEF_ESSID"; fi
 		if [ -n "$4" ]; then KEY=$4; else IF="$DEF_KEY"; fi
 		if [ -n "$5" ]; then CHAN=$5; else IF="$DEF_CHAN"; fi
-		if [ -n "$6" ]; then IP=$6; fi # else IF="$DEF_IP"; fi
+		if [ -n "$6" ]; then AP=$6; else AP="$DEF_AP"; fi
+		if [ -n "$7" ]; then IP=$7; else IF="$DEF_IP"; fi # Comment the else part if u want dhcpl when no ip addres is passed. It gives problem tho, bc network-manageer will interfere with the iface
 		echo "if"; echo $IF; echo "essid"; echo $ESSID; echo "key"; echo $KEY; echo "chan"; echo $CHAN; echo "ip"; echo $IP
 		
 		sudo service network-manager stop
