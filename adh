@@ -12,7 +12,7 @@ DEF_IF=wlp2s0
 DEF_ESSID=adhoc
 DEF_KEY=1234567890
 DEF_CHAN=6
-DEF_AP=adhoc
+DEF_AP=96:E7:B7:39:8C:6F
 DEF_IP=2001:db8:85a3::8a2e:370:7334
 
 # From https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
@@ -30,21 +30,34 @@ do
 		if [ -n "$7" ]; then IP=$7; else IP="$DEF_IP"; fi # Comment the else part if u want dhcpl when no ip addres is passed. It gives problem tho, bc network-manageer will interfere with the iface
 		echo "if"; echo $IF; echo "essid"; echo $ESSID; echo "key"; echo $KEY; echo "chan"; echo $CHAN; echo "acces point"; echo $AP; echo "ip"; echo $IP
 		
+		echo "sudo service network-manager stop" ##
 		sudo service network-manager stop
+		echo "sudo ip link set $IF down" ##
 		sudo ip link set $IF down 
 	
+		echo "sudo iwconfig $IF mode ad-hoc" ##
 		sudo iwconfig $IF mode ad-hoc
+		echo "sudo iwconfig $IF essid $ESSID" ##
 		sudo iwconfig $IF essid $ESSID
+		echo "sudo iwconfig $IF key $KEY" ##
 		sudo iwconfig $IF key $KEY
+		echo "sudo iwconfig $IF channel $CHAN" ##
 		sudo iwconfig $IF channel $CHAN
-		
+		echo "sudo iwconfig $IF ap $AP" ##
+		sudo iwconfig $IF ap $AP
+
+		echo "sudo ip link set $IF up" ##
 		sudo ip link set $IF up
 
-		if [ ! -z $IP ]; then
+		if [ -z "$IP" ]; then
+			echo "sudo dhclient $IF" ##
 			sudo dhclient $IF
 		else	
+			echo "sudo ip addr add $IP dev $IF"			
 			sudo ip addr add $IP dev $IF # 169.254.34.2/16
 		fi
+
+		iwconfig
 
 		shift # past argument
 		shift # past value
